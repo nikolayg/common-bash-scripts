@@ -33,7 +33,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Default values
-folder=${folder:="~/Download/Conversion"}
+folder=${folder:="/home/nikolay/Videos/Conversion"}
 quailty=${quailty:="low"}
 
 crf=24
@@ -52,7 +52,7 @@ if [ "quality" = "med" ]; then
 fi
 
 # Download subtitles ...
-bash ./subtitles.sh "${folder}"
+nice -n 15 bash ./subtitles.sh "${folder}"
 
 # Set up folder
 cd "${folder}"
@@ -68,7 +68,7 @@ do
     newFile=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
     for i in $(seq ${w} -5 600)
     do
-        ffmpeg -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-1 "${newFile}-conv.mp4"
+        nice -n 15 ffmpeg -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-1 "${newFile}-conv.mp4"
         if [ $? -eq 0 ]; then
             echo "SUCCESS"
             mv "${file}" ./original
@@ -90,7 +90,7 @@ for file in `find . -type f | egrep '\.(mp3|flac|wav|ogg|wma)$' | egrep -v 'BBC 
 do
     echo "file = $file"
     newFile=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
-    ffmpeg -y -i "${file}" -acodec libmp3lame -ac 2 -ab ${ab} -ar 44100 "${newFile}-conv.mp3"
+    nice -n 15 ffmpeg -loglevel panic -y -i "${file}" -acodec libmp3lame -ac 2 -ab ${ab} -ar 44100 "${newFile}-conv.mp3"
     mv "${file}" ./original
 done
 
