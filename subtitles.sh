@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Display commands and their args before running them
-set -x
+# set -x
 
 # Verbose mode
 # set -v
@@ -14,5 +14,9 @@ chmod u+x ./OpenSubtitlesDownload/OpenSubtitlesDownload.py
 
 find "$1" -type f | egrep -i "mp4|avi|mkv|flv|wmv|mov" | while read -r file
 do
-     ./OpenSubtitlesDownload.py  -g cli -a "${file}"
+    fileNoExt=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
+    if [ ! -f "${fileNoExt}.srt" ]; then
+        echo -e "\n========> Subtitles for \"${file}\" \n"
+        ./OpenSubtitlesDownload.py  -g cli -a "${file}"
+    fi
 done

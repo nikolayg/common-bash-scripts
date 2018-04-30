@@ -64,13 +64,13 @@ IFS=$'\n'
 # Process video
 for file in `find . -type f | egrep '\.(m4v|mkv|mp4|avi|mov|wmv)$'  | egrep -v '\/original' | egrep -v '\-conv\.(mp4)$'`  
 do
-    echo "file = $file"
+    echo -e "\n========> Processing File \"$file\""
     newFile=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
     for i in $(seq ${w} -5 600)
     do
-        nice -n 15 ffmpeg -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-1 "${newFile}-conv.mp4"
+        nice -n 15 ffmpeg -nostats -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-1 "${newFile}-conv.mp4"
         if [ $? -eq 0 ]; then
-            echo "SUCCESS"
+            echo -e "\nSUCCESS: ${file}"
             mv "${file}" ./original
 
             # If subtitles exist - rename them appropriately...
@@ -80,7 +80,7 @@ do
             fi 
             break
         else
-            echo "FAIL"
+            echo -e "\nFAIL : ${file}"
         fi
     done
 done
@@ -88,9 +88,9 @@ done
 # Process Audio
 for file in `find . -type f | egrep '\.(mp3|flac|wav|ogg|wma)$' | egrep -v 'BBC The English' | egrep -v '\/original' | egrep -v '\-conv\.(mp3)$'`  
 do
-    echo "file = $file"
+    echo -e "\n========> Processing File \"$file\""
     newFile=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
-    nice -n 15 ffmpeg -loglevel panic -y -i "${file}" -acodec libmp3lame -ac 2 -ab ${ab} -ar 44100 "${newFile}-conv.mp3"
+    nice -n 15 ffmpeg -nostats -loglevel panic -y -i "${file}" -acodec libmp3lame -ac 2 -ab ${ab} -ar 44100 "${newFile}-conv.mp3"
     mv "${file}" ./original
 done
 
