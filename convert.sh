@@ -70,7 +70,7 @@ do
     do
         nice -n 15 ffmpeg -nostats -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-1 "${newFile}-conv.mp4"
         if [ $? -eq 0 ]; then
-            echo -e "SUCCESS: ${file}"
+            echo -e "Succeeded with width $i px"
             mv "${file}" ./original
 
             # If subtitles exist - rename them appropriately...
@@ -80,7 +80,7 @@ do
             fi 
             break
         else
-            echo -e "FAIL : ${file}"
+            echo -e "Failed with width $i px"
         fi
     done
 done
