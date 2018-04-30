@@ -35,7 +35,11 @@ else
   ssh-add "~/.ssh/id_rsa_$1"
 fi
 
-sudo launchctl stop com.openssh.sshd
+
+if [ "$(uname)" == "Darwin" ]; then
+  sudo launchctl stop com.openssh.sshd
+fi
+
 
 #for f in `ls | egrep 'id_rsa[^.]*$'`;
 #do
