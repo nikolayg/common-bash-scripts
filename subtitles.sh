@@ -12,7 +12,7 @@ set -u
 ### How to set it up ... 
 chmod u+x ./OpenSubtitlesDownload/OpenSubtitlesDownload.py 
 
-find "$1" -type f | egrep -i "mp4|avi|mkv|flv|wmv|mov" | while read -r file
+find "$1" -type f | egrep -i "m4v|mkv|mp4|avi|mov|wmv|flv" | egrep -v '\/original' | while read -r file
 do
     fileNoExt=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
     if [ ! -f "${fileNoExt}.srt" ]; then
