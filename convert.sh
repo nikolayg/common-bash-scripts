@@ -34,25 +34,33 @@ done
 
 # Default values
 folder=${folder:="/home/nikolay/Videos/Conversion"}
-quailty=${quailty:="low"}
+quality=${quality:="original"}
+nicity=${nicity:="15"} # −20 is the highest priority and 19 is lowest
 
-crf=24
-w=720
-ab=64k
-if [ "quality" = "high" ]; then
-  crf=18
+crf=18
+w=1280
+ab=128k
+
+if [ ${quality} = "high" ]; then
+  crf=19
   w=1280
   ab=128k
 fi
 
-if [ "quality" = "med" ]; then
-  crf=22
+if [ ${quality} = "med" ]; then
+  crf=23
   w=960
   ab=64k
 fi
 
+if [ ${quality} = "low" ]; then
+  crf=24
+  w=720
+  ab=64k
+fi
+
 # Download subtitles ...
-nice -n 15 bash ./subtitles.sh "${folder}"
+nice -n ${nicity} bash ./subtitles.sh "${folder}"
 
 # Set up folder
 cd "${folder}"
@@ -62,27 +70,47 @@ OIFS="$IFS"
 IFS=$'\n'
 
 # Process video
-for file in `find . -type f | egrep '\.(m4v|mkv|mp4|avi|mov|wmv)$'  | egrep -v '\/original' | egrep -v '\-conv\.(mp4)$'`  
+for file in `find . -type f | egrep -i '\.(m4v|mkv|mp4|avi|mov|wmv|flv)$' | egrep -v '\/original' | egrep -v '\-conv\.(mp4)$'`  
 do
     echo -e "\n========> Processing File \"$file\""
     newFile=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
-    for i in $(seq ${w} -5 600)
-    do
-        nice -n 15 ffmpeg -nostats -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-1 "${newFile}-conv.mp4"
-        if [ $? -eq 0 ]; then
-            echo -e "Succeeded with width $i px"
-            mv "${file}" ./original
 
-            # If subtitles exist - rename them appropriately...
-            if [ -e "${newFile}.srt" ]; then
-                cp "${newFile}.srt" ./original
-                mv "${newFile}.srt" "${newFile}-conv.srt"
-            fi 
-            break
-        else
-            echo -e "Failed with width $i px"
-        fi
-    done
+    # For Original quality do not rescale
+    convResult=1
+    if [ ${quality} = "original" ]; then
+        nice -n ${nicity} ffmpeg -nostats -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} "${newFile}-conv.mp4"
+        convResult=$?
+    fi
+
+    # If non-original quality or if original fails - try to resize
+    if [ ${convResult} -ne 0 ]; then
+        for i in $(seq ${w} -5 600)
+        do
+            nice -n ${nicity} ffmpeg -nostats -loglevel panic -y -i "${file}" -vcodec h264 -acodec mp3 -crf ${crf} -vf scale=${i}:-2 "${newFile}-conv.mp4"
+            convResult=$?
+
+            if [ ${convResult} -eq 0 ]; then
+                echo -e "Succeeded with width of $i px"
+                break
+            else
+                echo -e "Failed with width of $i px"
+            fi
+        done
+    fi
+
+
+    # Postprocess on success - rename subtitles accordingly and move original
+    if [ ${convResult} -eq 0 ]; then
+        mv "${file}" ./original
+
+        # If subtitles exist - rename them appropriately...
+        if [ -e "${newFile}.srt" ]; then
+            cp "${newFile}.srt" ./original
+            mv "${newFile}.srt" "${newFile}-conv.srt"
+        fi 
+    else
+        echo -e "Failed converting with ${quality} quality"
+    fi
 done
 
 # Process Audio
@@ -90,7 +118,7 @@ for file in `find . -type f | egrep '\.(mp3|flac|wav|ogg|wma)$' | egrep -v 'BBC 
 do
     echo -e "\n========> Processing File \"$file\""
     newFile=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
-    nice -n 15 ffmpeg -nostats -loglevel panic -y -i "${file}" -acodec libmp3lame -ac 2 -ab ${ab} -ar 44100 "${newFile}-conv.mp3"
+    nice -n ${nicity} ffmpeg -nostats -loglevel panic -y -i "${file}" -acodec libmp3lame -ac 2 -ab ${ab} -ar 44100 "${newFile}-conv.mp3"
     mv "${file}" ./original
 done
 
