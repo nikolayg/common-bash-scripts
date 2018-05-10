@@ -21,7 +21,7 @@ do
 done
 
 # Download From Open Subtitles
-find "$1" -type f | egrep -i "m4v|mkv|mp4|avi|mov|wmv|flv" | egrep -v '\/original' | while read -r file
+find "$1" -type f | egrep -i "m4v|mkv|mp4|avi|mov|wmv|flv" | egrep -v '\/original' | egrep -v '\-conv\.(mp4)$' | while read -r file
 do
     fileNoExt=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
     if [ ! -f "${fileNoExt}.srt" ]; then
