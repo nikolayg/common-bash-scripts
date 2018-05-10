@@ -4,7 +4,7 @@
 set -u
 
 # Fails if a command returns an error code
-#set -e
+set -e
 
 cd ~/.ssh
 eval "$(ssh-agent)"
@@ -28,11 +28,12 @@ if [[ -z "${1+present}" ]]
 then
   echo "Lodaing Personal SSH config"
   cp -rf config-personal config
-  ssh-add ~/.ssh/id_rsa
+  ssh-add "${HOME}/.ssh/id_rsa"
 else
   echo "Lodaing $1 SSH config"
   cp -rf "config-$1" config
-  ssh-add "~/.ssh/id_rsa_$1"
+  echo ${HOME}
+  ssh-add "${HOME}/.ssh/id_rsa_$1"
 fi
 
 
