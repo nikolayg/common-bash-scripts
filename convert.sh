@@ -33,7 +33,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Default values
-folder=${folder:="/home/nikolay/Videos/Conversion"}
+folder=${folder:="${HOME}/Videos/Conversion"}
 quality=${quality:="original"}
 nicity=${nicity:="15"} # −20 is the highest priority and 19 is lowest
 
