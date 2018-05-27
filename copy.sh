@@ -21,8 +21,8 @@ done
 # Default values
 src=${src:="${HOME}/Videos/Conversion"}
 dest=${dest:="/media/nikolay/Nik"}
-method=${method:="rsync"}
-autofix=${autofix:="yes"}
+method=${method:="cp"}
+autofix=${autofix:="no"}
 
 # fsck -a /dev/sda1
 
@@ -31,7 +31,8 @@ if [ ${autofix} = "yes" ]; then
     mount=`df | egrep "${dest}\$" | awk '{print $1}'`
 
     if [ ! -z ${mount} ]; then 
-        sudo dosfsck -w -r -l -a -v -t ${mount}
+        # sudo dosfsck -w -r -l -a -v -t ${mount}
+        sudo dosfsck -w -l -a -v -t ${mount}
     fi
 fi
 
@@ -39,8 +40,8 @@ echo "Start file copying ..."
 
 # With plain copy or rsync?
 if [ ${method} = "cp" ]; then
-    cp -ru "${src}/*" "${dest}"
+    cp -ruv "${src}/"* "${dest}"
 else
-    rsync -crv "${src}/*" "${dest}"
+    rsync -crv "${src}/" "${dest}"
 fi
 
