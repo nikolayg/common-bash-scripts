@@ -123,6 +123,22 @@ do
 done
 
 
+# Remove hidden files
+echo -e "\n========> Remove all hidden files ..."
+find . -type f -name ".*" -delete
+
+# Sanitize file names
+for file in `find . -type f`  
+do
+    echo -e "\n========> Renaming File \"$file\""
+    fn=`basename "$file"`
+    ext="${fn##*.}"
+    name="${fn%.*}"
+    fpath=`echo "${file%/*}"`
+    newName=`echo $name | sed s/%[0-9]*/\ /g | sed s/[[:punct:]]/-/g | sed 's/[[:blank:]]\+/\ /g'`
+    mv ${file} "${fpath}/${newName}.${ext}"
+done
+
 IFS="$OIFS"
 
 
