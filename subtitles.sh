@@ -10,7 +10,7 @@
 set -u
 
 ### How to set it up ... 
-chmod u+x ./OpenSubtitlesDownload/OpenSubtitlesDownload.py 
+chmod u+x ./OpenSubtitlesDownload.py 
 
 # Convert VTT to SRT
 find "$1" -type f | egrep -i "vtt$" | egrep -v '\/original' | while read -r file
