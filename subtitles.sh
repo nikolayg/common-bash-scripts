@@ -24,6 +24,11 @@ done
 find "$1" -type f | egrep -i "m4v|mkv|mp4|avi|mov|wmv|flv" | egrep -v '\/original' | egrep -v '\-conv\.(mp4)$' | while read -r file
 do
     fileNoExt=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
+
+    if [ ! -f "${fileNoExt}.srt" ]; then
+        ffmpeg -i "${file}" -map 0:s:0 "${fileNoExt}.srt"
+    fi
+
     if [ ! -f "${fileNoExt}.srt" ]; then
         echo -e "\n========> Subtitles for \"${file}\" \n"
         ./OpenSubtitlesDownload.py  -g cli -a "${file}"
