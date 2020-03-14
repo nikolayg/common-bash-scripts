@@ -7,7 +7,7 @@
 # set -v
 
 # Fails if an undefined variable is used
-set -u
+# set -u
 
 ### How to set it up ... 
 chmod u+x ./OpenSubtitlesDownload.py 
@@ -24,8 +24,13 @@ done
 find "$1" -type f | egrep -i "m4v|mkv|mp4|avi|mov|wmv|flv" | egrep -v '\/original' | egrep -v '\-conv\.(mp4)$' | while read -r file
 do
     fileNoExt=`echo "${file}" | sed -e 's/\.[^\.]*$//g'`
+
     if [ ! -f "${fileNoExt}.srt" ]; then
-        echo -e "\n========> Subtitles for \"${file}\" \n"
+        ffmpeg -i "${file}" -map 0:s:0 "${fileNoExt}.srt"
+    fi
+
+    if [ ! -f "${fileNoExt}.srt" ]; then
+        echo -e "\n\n\n==== ==== ==== ====> Subtitles for \"${file}\" \n"
         ./OpenSubtitlesDownload.py  -g cli -a "${file}"
     fi
 done
